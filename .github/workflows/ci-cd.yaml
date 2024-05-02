@@ -13,12 +13,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    # Configure AWS credentials
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2  # Set the region for all AWS actions
+
     # Login to Amazon ECR
     - name: Login to Amazon ECR
       uses: aws-actions/amazon-ecr-login@v1
-      with:
-        region: us-west-2  # Specify the AWS region your ECR resides in
-        mask-password: true  # Masking the docker login password
 
     # Build and push Docker image to ECR
     - name: Build and push Docker image
@@ -26,14 +31,14 @@ jobs:
         docker build -t 590183982448.dkr.ecr.us-west-2.amazonaws.com/my-python-r-image:${{ github.sha }} .
         docker push 590183982448.dkr.ecr.us-west-2.amazonaws.com/my-python-r-image:${{ github.sha }}
 
-    # Configure AWS credentials
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-west-2
+    # Update Kubernetes deployment
+    - name: Update Kubernetes deployment
+      run: |
+        aws eks update-kubeconfig --name <Your-Cluster-Name> # Replace <Your-Cluster-Name> with your actual cluster name
+        kubectl set image deployment/myapp-deployment myapp=590183982448.dkr.ecr.us-west-2.amazonaws.com/my-python-r-image:${{ github.sha }} --record
+        kubectl rollout status deployment/myapp-deployment
 
+   
     # Update Kubernetes deployment
     - name: Deploy to Kubernetes
       run: |
