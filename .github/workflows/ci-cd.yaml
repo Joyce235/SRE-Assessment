@@ -34,14 +34,7 @@ jobs:
     # Update Kubernetes deployment
     - name: Update Kubernetes deployment
       run: |
-        aws eks update-kubeconfig --name <Your-Cluster-Name> # Replace <Your-Cluster-Name> with your actual cluster name
-        kubectl set image deployment/myapp-deployment myapp=590183982448.dkr.ecr.us-west-2.amazonaws.com/my-python-r-image:${{ github.sha }} --record
-        kubectl rollout status deployment/myapp-deployment
-
-   
-    # Update Kubernetes deployment
-    - name: Deploy to Kubernetes
-      run: |
+        aws eks update-kubeconfig --name my-python-r-cluster # Replace <Your-Cluster-Name> with your actual cluster name
         kubectl set image deployment/myapp-deployment myapp=590183982448.dkr.ecr.us-west-2.amazonaws.com/my-python-r-image:${{ github.sha }} --record
         kubectl rollout status deployment/myapp-deployment
         kubectl apply -f deployment.yaml
