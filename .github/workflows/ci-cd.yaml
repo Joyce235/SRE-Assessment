@@ -16,6 +16,9 @@ jobs:
     # Login to Amazon ECR
     - name: Login to Amazon ECR
       uses: aws-actions/amazon-ecr-login@v1
+      with:
+        region: us-west-2  # Specify the AWS region your ECR resides in
+        mask-password: true  # Masking the docker login password
 
     # Build and push Docker image to ECR
     - name: Build and push Docker image
